@@ -1,0 +1,28 @@
+{
+  "name": "expertsystem-_generating_travel_rules",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "start": "nodemon index"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/dungxbuif/expertSystem-_generating_travel_rules.git"
+  },
+  "author": "dungxbuif",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/dungxbuif/expertSystem-_generating_travel_rules/issues"
+  },
+  "homepage": "https://github.com/dungxbuif/expertSystem-_generating_travel_rules#readme",
+  "dependencies": {
+    "chalk": "^3.0.0",
+    "dotenv": "^10.0.0",  
+    "express": "^4.17.1",
+    "googleapis": "^82.0.0"
+  },
+  "devDependencies": {
+    "nodemon": "^2.0.12"
+  }
+}
