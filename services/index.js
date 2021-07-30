@@ -1,5 +1,5 @@
-const spreadsheets = require('./spreadsheetsServices');
+const spreadsheetsServices = require('./spreadsheetsServices');
 
 module.exports = {
-   spreadsheets,
+   spreadsheetsServices,
 };
