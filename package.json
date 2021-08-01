@@ -4,7 +4,9 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "start": "nodemon index"
+    "start": "nodemon index",
+    "c": "npm run start --prefix client",
+    "dev": "concurrently \"npm start\" \"npm run c\""
   },
   "repository": {
     "type": "git",

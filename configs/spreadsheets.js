@@ -1,6 +1,6 @@
 module.exports = {
    EVENT_TYPES: 'event_types',
-   EVENT: 'events',
+   EVENTS: 'events',
    RESULTS: 'results',
    RULES: 'rules',
 };

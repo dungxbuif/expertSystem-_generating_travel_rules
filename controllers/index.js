@@ -1,8 +1,10 @@
 const SPREADSHEETS = require('../configs/spreadsheets');
-const eventTypesController = require('./eventTypesController');
-
-const obj = {};
+const {
+   eventTypesController,
+   getGroupEvents,
+} = require('./spreadSheetsController');
 
 module.exports = {
    [`${SPREADSHEETS.EVENT_TYPES}`]: eventTypesController,
+   getGroupEvents,
 };
