@@ -47,7 +47,8 @@ const getTable = (table) => {
 const append = (table, values = []) => {
    return new Promise(async (resolve, rejects) => {
       try {
-         const res = await googleSheets.spreadsheets.values.append({
+         const sheets = await googleSheets();
+         const res = await sheets.spreadsheets.values.append({
             auth,
             spreadsheetId,
             range: table,
@@ -82,24 +83,20 @@ const append = (table, values = []) => {
 const getSize = (table) => {
    return new Promise(async (resolve, rejects) => {
       try {
-         const res = await googleSheets.spreadsheets.values.get({
+         const sheets = await googleSheets();
+         const res = await sheets.spreadsheets.values.get({
             auth,
             spreadsheetId,
             range: table,
          });
          console.log(log.succeed(`Get spreadsheet ${table} length succeed`));
 
-         let data = [...res.data];
+         let data = [...res.data.values];
          data.shift();
 
-         resolve({
-            code: 1,
-            message: `Get spreadsheet ${table} length succeed`,
-            data: data.length,
-         });
+         resolve(data.length);
       } catch (e) {
          rejects({ code: 0, message: e.message });
-         console.log(log.error(e.message));
       }
    });
 };

@@ -47,7 +47,7 @@ function DropdownMenu() {
    return (
       <div
          className="dropdown"
-         style={{ height: menuHeight }}
+         style={{ height: menuHeight, zIndex: '1' }}
          ref={dropdownRef}
       >
          <div className="menu">

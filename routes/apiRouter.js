@@ -9,6 +9,8 @@ const handleAPI = (req, res, next, method) => {
    if (spreadsheet === 'get-group-events')
       return spreadSheetsController.getGroupEvents(req, res, next);
 
+   if (spreadsheet === 'get-all-rules')
+      return spreadSheetsController.getAllRules(req, res, next);
    controllers[spreadsheet][method](req, res, next);
 };
 
@@ -26,5 +28,7 @@ router.put('/spreadsheets/:spreadsheet/', (req, res, next) =>
 router.delete('/spreadsheets/:spreadsheet/', (req, res, next) =>
    handleAPI(req, res, next, 'delete')
 );
+
+router.post('/create-new-rule/', spreadSheetsController.createNewRule);
 
 module.exports = router;

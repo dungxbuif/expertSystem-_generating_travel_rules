@@ -6,8 +6,10 @@ import { ToastContainer, toast } from 'react-toastify';
 
 function App() {
    const [selectData, setSelectData] = useState([]);
+   const [rules, setRules] = useState([]);
+
    useEffect(() => {
-      toast.info('🔄 Loading select !!!', {
+      toast.info('🔄 Loading data !!!', {
          position: 'bottom-right',
          autoClose: false,
          hideProgressBar: false,
@@ -16,39 +18,42 @@ function App() {
          draggable: false,
          progress: undefined,
       });
-      const getGroupEvents = async () => {
+      const getData = async () => {
          const res = await api.getGroupEvents();
-         if (res.data.code === 1) {
-            const eventTypesArr = [...res.data.data[0]];
-            const eventTypesObj = Object.fromEntries(
-               eventTypesArr.map((item) => [
-                  item[0],
-                  { label: item[1], options: [] },
-               ])
-            );
-            const eventsArr = [...res.data.data[1]];
-            eventsArr.forEach((ele) => {
-               eventTypesObj[ele[1]].options.push({
-                  label: ele[2],
-                  value: `${ele[1]}-${ele[2]}`,
-               });
-            });
-            const data = Object.values(eventTypesObj);
-            setSelectData(data);
+         const res1 = await api.getAllRules();
+
+         if (res.data.code === 1 && res1.data.code === 1) {
+            setSelectData(res.data.data);
+            setRules(res1.data.data);
+
             toast.dismiss();
             toast.success('🚀 Loading select succeed !!!');
          } else {
-            toast.error('🔥 Loading failed !!!');
+            toast.error('🔥 Loading data failed !!!');
          }
       };
 
-      getGroupEvents();
+      getData();
    }, []);
+
+   const loadAllRule = async () => {
+      const res = await api.getAllRules();
+
+      if (res.data.code === 1) {
+         setRules(res.data.data);
+
+         toast.dismiss();
+         toast.success('🚀 Reloading all rule succeed !!!');
+      } else {
+         toast.error('🔥 Reloading all rule failed !!!');
+      }
+   };
    return (
       <>
          <Header />
-         <Main selectData={selectData}>
+         <Main selectData={selectData} loadAllRule={loadAllRule}>
             {selectData.length !== 0 ? <Events events={selectData} /> : null}
+            {rules.length !== 0 ? <Rules rules={rules} /> : null}
          </Main>
          <ToastContainer
             position="bottom-right"
@@ -66,10 +71,9 @@ function App() {
 }
 
 const Events = ({ events }) => {
-   console.log(events);
    return (
       <>
-         <table className="table table-bordered table-hover col-6 bg-white">
+         <table className="table table-bordered table-hover col-3 bg-white">
             <thead className="thead-dark">
                <tr>
                   <th scope="col">Loại sự kiện</th>
@@ -96,6 +100,41 @@ const Events = ({ events }) => {
             </tbody>
          </table>
       </>
+   );
+};
+
+const Rules = ({ rules }) => {
+   return (
+      <div className="col-9 pl-2">
+         <table className="table table-bordered table-hover bg-white">
+            <thead className="thead-dark">
+               <tr>
+                  <th scope="col">Sự kiện</th>
+                  <th scope="col">Kết quả</th>
+               </tr>
+            </thead>
+            <tbody>
+               {rules.map((item) => (
+                  <tr key={item.id} style={{ cursor: 'pointer' }}>
+                     <td className="text-center" scope="row">
+                        {item.events.map((ele, index) => (
+                           <span key={index}>
+                              <b>{ele}</b>
+                              {index != item.events.length - 1
+                                 ? '  ^  '
+                                 : '  =>'}
+                           </span>
+                        ))}
+                     </td>
+
+                     <td>
+                        <b>{item.result}</b>
+                     </td>
+                  </tr>
+               ))}
+            </tbody>
+         </table>
+      </div>
    );
 };
 
