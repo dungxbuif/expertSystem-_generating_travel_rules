@@ -6,11 +6,15 @@ const spreadSheetsController = require('../controllers');
 const handleAPI = (req, res, next, method) => {
    spreadsheet = req.params.spreadsheet;
 
-   if (spreadsheet === 'get-group-events')
+   if (spreadsheet === 'get-group-events' && method == 'get')
       return spreadSheetsController.getGroupEvents(req, res, next);
 
-   if (spreadsheet === 'get-all-rules')
+   if (spreadsheet === 'get-all-rules' && method == 'get')
       return spreadSheetsController.getAllRules(req, res, next);
+
+   if (spreadsheet === 'get-all-events' && method == 'get')
+      return spreadSheetsController.getAllEvents(req, res, next);
+
    controllers[spreadsheet][method](req, res, next);
 };
 

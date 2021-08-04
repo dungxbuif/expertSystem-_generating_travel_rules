@@ -1,6 +1,7 @@
 const { spreadsheetsServices } = require('../services');
 const SPREADSHEETS = require('../configs/spreadsheets');
 const log = require('../configs/log');
+const _ = require('lodash');
 
 const getEventType = async (req, res, next) => {
    const data = await spreadsheetsServices.getTable(SPREADSHEETS.EVENT_TYPES);
@@ -35,7 +36,7 @@ const getGroupEvents = async (req, res, next) => {
          eventsArr.forEach((ele) => {
             eventTypesObj[ele[1]].options.push({
                label: ele[2],
-               value: `${ele[0]}:${ele[2]}`,
+               value: `${ele[0]}: ${ele[2]}`,
             });
          });
          const data = Object.values(eventTypesObj);
@@ -55,8 +56,8 @@ const getGroupEvents = async (req, res, next) => {
    }
 };
 
-const getAllRules = async (req, res, next) => {
-   try {
+const getAllRulesCommon = () => {
+   return new Promise(async (resolve, reject) => {
       const [res1, res2, res3] = await Promise.all([
          spreadsheetsServices.getTable(SPREADSHEETS.RESULTS),
          spreadsheetsServices.getTable(SPREADSHEETS.EVENTS),
@@ -81,24 +82,29 @@ const getAllRules = async (req, res, next) => {
                let EVENT_VALUE = eventsObj[EVENT_KEY_FROM_RESULT];
                obj[RULE_ID][
                   'result'
-               ] = `${EVENT_KEY_FROM_RESULT}:${EVENT_VALUE}`;
+               ] = `${EVENT_KEY_FROM_RESULT}: ${EVENT_VALUE}`;
             }
 
             obj[RULE_ID]['events'].push(
-               `${RULE_VALUE}:${eventsObj[RULE_VALUE]}`
+               `${RULE_VALUE}: ${eventsObj[RULE_VALUE]}`
             );
 
             return obj;
          }, {});
 
-         const data = Object.values(rulesObj);
-
-         res.send({
-            code: 1,
-            message: `Get select box data succeed`,
-            data,
-         });
+         resolve(Object.values(rulesObj));
       }
+   });
+};
+
+const getAllRules = async (req, res, next) => {
+   try {
+      const data = await getAllRulesCommon();
+      res.send({
+         code: 1,
+         message: `Get select box data succeed`,
+         data,
+      });
    } catch (e) {
       console.log(log.error(`getAllRules failed: ${e.message}`));
       res.send({
@@ -108,29 +114,58 @@ const getAllRules = async (req, res, next) => {
    }
 };
 
+const isExistInArray = (x, y) => {
+   return _(x).differenceWith(y, _.isEqual).isEmpty() && x.length == y.length;
+};
+const checkExistRule = (rules, newRule) => {
+   for (let i = 0; i < rules.length; i++) {
+      if (
+         rules[i].result === newRule.result &&
+         isExistInArray(rules[i].events, newRule.events)
+      )
+         return true;
+   }
+   return false;
+};
+
 const createNewRule = async (req, res, next) => {
    try {
       const size = await spreadsheetsServices.getSize(SPREADSHEETS.RESULTS);
       const { result, events } = req.body;
-      const result_event_id = result.split(':')[0];
-      const rules_event_id = events.map((item) => {
-         return [size + 1, item.split(':')[0]];
-      });
-      const value = [[size + 1, result_event_id]];
-      const [saveResult, saveRules] = await Promise.all([
-         spreadsheetsServices.append(SPREADSHEETS.RESULTS, value),
-         spreadsheetsServices.append(SPREADSHEETS.RULES, rules_event_id),
-      ]);
+      const rulesRes = await getAllRulesCommon();
+      const allRules = rulesRes.map((item) => ({
+         result: item.result,
+         events: item.events,
+      }));
 
-      if (saveResult.code == 1 && saveRules.code == 1) {
-         res.send({
-            code: 1,
-            message: `createNewRule succeed`,
+      const checkRules = checkExistRule(allRules, { result, events });
+
+      if (!checkRules) {
+         const result_event_id = result.split(': ')[0];
+         const rules_event_id = events.map((item) => {
+            return [size + 1, item.split(': ')[0]];
          });
+         const value = [[size + 1, result_event_id]];
+         const [saveResult, saveRules] = await Promise.all([
+            spreadsheetsServices.append(SPREADSHEETS.RESULTS, value),
+            spreadsheetsServices.append(SPREADSHEETS.RULES, rules_event_id),
+         ]);
+
+         if (saveResult.code == 1 && saveRules.code == 1) {
+            res.send({
+               code: 1,
+               message: `createNewRule succeed`,
+            });
+         } else {
+            res.send({
+               code: 0,
+               message: `createNewRule failed !!!`,
+            });
+         }
       } else {
          res.send({
-            code: 0,
-            message: `createNewRule failed !!!`,
+            code: 2,
+            message: `Rule has already existed !!!`,
          });
       }
    } catch (e) {
@@ -138,6 +173,32 @@ const createNewRule = async (req, res, next) => {
       res.send({
          code: 0,
          message: `createNewRule failed !!!`,
+      });
+   }
+};
+
+const getAllEvents = async (req, res, next) => {
+   try {
+      const eventsArr = await spreadsheetsServices.getTable(
+         SPREADSHEETS.EVENTS
+      );
+
+      if (eventsArr.code === 1) {
+         console.log(log.succeed('getAllEvents succeed!!!'));
+
+         const data = eventsArr.data.map((item) => `${item[0]}: ${item[2]}`);
+
+         res.send({
+            code: 1,
+            message: `Get all events succeed`,
+            data,
+         });
+      }
+   } catch (e) {
+      console.log(log.error(`et all events failed: ${e.message}`));
+      res.send({
+         code: 0,
+         message: `Get all events failed !!!`,
       });
    }
 };
@@ -150,4 +211,5 @@ module.exports = {
    getGroupEvents,
    getAllRules,
    createNewRule,
+   getAllEvents,
 };

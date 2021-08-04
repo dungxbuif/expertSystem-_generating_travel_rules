@@ -27,7 +27,10 @@ export default function Main({ selectData, children, loadAllRule }) {
          return;
       }
    };
-
+   const reset = () => {
+      setEvents(null);
+      setResult(null);
+   };
    const handleSave = async () => {
       const sendResult = result.value;
       let sendData = {
@@ -47,8 +50,13 @@ export default function Main({ selectData, children, loadAllRule }) {
       if (res.data.code === 1) {
          toast.dismiss();
          toast.success('🚀 Creating rule succeed !!!');
+         reset();
          loadAllRule();
+      } else if (res.data.code === 2) {
+         toast.dismiss();
+         toast.warning(`📑 ${res.data.message}`);
       } else {
+         toast.dismiss();
          toast.error('🔥 Creating rule failed !!!');
       }
    };
@@ -82,8 +90,17 @@ export default function Main({ selectData, children, loadAllRule }) {
                   Lưu
                </button>
             )}
+            {events ? (
+               <button
+                  type="button"
+                  className="btn  btn-light mx-1"
+                  onClick={() => reset()}
+               >
+                  Chọn lại
+               </button>
+            ) : null}
          </div>
-         <div className="row justify-content-center">
+         <div className="row justify-content-center mt-5">
             {events && (
                <div className="alert alert-success mt-5" role="alert">
                   {events.map((ele, index) => (

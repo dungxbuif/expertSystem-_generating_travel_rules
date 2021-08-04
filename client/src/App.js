@@ -8,6 +8,19 @@ function App() {
    const [selectData, setSelectData] = useState([]);
    const [rules, setRules] = useState([]);
 
+   const getAllRules = async () => {
+      const res = await api.getAllRules();
+      let data = [...res.data.data];
+      data.forEach((element) => {
+         element.events.sort();
+      });
+      data.sort((a, b) => {
+         return a.events.length - b.events.length;
+      });
+      res.data.data = data;
+      return res.data;
+   };
+
    useEffect(() => {
       toast.info('🔄 Loading data !!!', {
          position: 'bottom-right',
@@ -20,11 +33,10 @@ function App() {
       });
       const getData = async () => {
          const res = await api.getGroupEvents();
-         const res1 = await api.getAllRules();
-
-         if (res.data.code === 1 && res1.data.code === 1) {
+         const res1 = await getAllRules();
+         if (res.data.code === 1 && res1.code === 1) {
             setSelectData(res.data.data);
-            setRules(res1.data.data);
+            setRules(res1.data);
 
             toast.dismiss();
             toast.success('🚀 Loading select succeed !!!');
@@ -37,10 +49,10 @@ function App() {
    }, []);
 
    const loadAllRule = async () => {
-      const res = await api.getAllRules();
+      const res = await getAllRules();
 
-      if (res.data.code === 1) {
-         setRules(res.data.data);
+      if (res.code === 1) {
+         setRules(res.data);
 
          toast.dismiss();
          toast.success('🚀 Reloading all rule succeed !!!');
@@ -48,12 +60,44 @@ function App() {
          toast.error('🔥 Reloading all rule failed !!!');
       }
    };
+
+   const getAllEvents = async () => {
+      let res = null;
+      try {
+         res = await api.getAllEvents();
+         if (res.data.code !== 1) {
+            toast.error('🔥 Loading all events failed !!!');
+            return;
+         }
+      } catch (e) {
+         toast.error('🔥 Loading all events failed !!!');
+      }
+
+      return res.data.data.map((item) => `${item}\n`);
+   };
+
+   const convertResults = () => {
+      return rules.map((item, index) => {
+         let REULTS = item.result.split(':')[0];
+         let string = '';
+         for (let i = 0; i < item.events.length; i++) {
+            string += item.events[i].split(':')[0];
+
+            let tmp = ' ^ ';
+            if (i == item.events.length - 1) tmp = ' => ';
+
+            string += tmp;
+         }
+
+         return `R${index + 1}: ${string}${REULTS}\n`;
+      });
+   };
    return (
       <>
-         <Header />
+         <Header rules={convertResults} getAllEvents={getAllEvents} />
          <Main selectData={selectData} loadAllRule={loadAllRule}>
-            {selectData.length !== 0 ? <Events events={selectData} /> : null}
             {rules.length !== 0 ? <Rules rules={rules} /> : null}
+            {selectData.length !== 0 ? <Events events={selectData} /> : null}
          </Main>
          <ToastContainer
             position="bottom-right"
@@ -73,7 +117,7 @@ function App() {
 const Events = ({ events }) => {
    return (
       <>
-         <table className="table table-bordered table-hover col-3 bg-white">
+         <table className="table table-bordered table-hover col-12 bg-white">
             <thead className="thead-dark">
                <tr>
                   <th scope="col">Loại sự kiện</th>
@@ -105,8 +149,8 @@ const Events = ({ events }) => {
 
 const Rules = ({ rules }) => {
    return (
-      <div className="col-9 pl-2">
-         <table className="table table-bordered table-hover bg-white">
+      <>
+         <table className="table table-bordered table-hover bg-white col-12">
             <thead className="thead-dark">
                <tr>
                   <th scope="col">Sự kiện</th>
@@ -134,7 +178,7 @@ const Rules = ({ rules }) => {
                ))}
             </tbody>
          </table>
-      </div>
+      </>
    );
 };
 
