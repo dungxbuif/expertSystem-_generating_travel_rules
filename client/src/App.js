@@ -15,6 +15,9 @@ function App() {
          element.events.sort();
       });
       data.sort((a, b) => {
+         return a.events[0].slice(0, 1).localeCompare(b.events[0].slice(0, 1));
+      });
+      data.sort((a, b) => {
          return a.events.length - b.events.length;
       });
       res.data.data = data;
