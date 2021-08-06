@@ -1,21 +1,29 @@
-import Header from './components/Header';
-import Main from './components/Main';
+import Manu from './components/Menu';
+import CreateRules from './components/CreateRules';
+import Events from './components/Events';
+import Rules from './components/Rules';
+import FindPlaces from './components/FindPlaces';
 import { useState, useEffect } from 'react';
 import * as api from './apis';
 import { ToastContainer, toast } from 'react-toastify';
+import { PageType } from './config/PageType';
 
 function App() {
    const [selectData, setSelectData] = useState([]);
    const [rules, setRules] = useState([]);
+   const [page, setPage] = useState(PageType.CREATE_RULES);
 
    const getAllRules = async () => {
       const res = await api.getAllRules();
       let data = [...res.data.data];
+
       data.forEach((element) => {
          element.events.sort();
       });
       data.sort((a, b) => {
-         return a.events[0].slice(0, 1).localeCompare(b.events[0].slice(0, 1));
+         return a.events[0]
+            .split(':')[0]
+            .localeCompare(b.events[0].split(':')[0]);
       });
       data.sort((a, b) => {
          return a.events.length - b.events.length;
@@ -87,7 +95,7 @@ function App() {
             string += item.events[i].split(':')[0];
 
             let tmp = ' ^ ';
-            if (i == item.events.length - 1) tmp = ' => ';
+            if (i === item.events.length - 1) tmp = ' => ';
 
             string += tmp;
          }
@@ -95,13 +103,41 @@ function App() {
          return `R${index + 1}: ${string}${REULTS}\n`;
       });
    };
+
+   const renderPage = () => {
+      switch (page) {
+         case PageType.FIND_PLACES:
+            return (
+               <FindPlaces
+                  selectData={selectData}
+                  loadAllRule={loadAllRule}
+                  rules={rules}
+               >
+                  {rules.length !== 0 ? <Rules rules={rules} /> : null}
+                  {selectData.length !== 0 ? (
+                     <Events events={selectData} />
+                  ) : null}
+               </FindPlaces>
+            );
+         default:
+            return (
+               <CreateRules selectData={selectData} loadAllRule={loadAllRule}>
+                  {rules.length !== 0 ? <Rules rules={rules} /> : null}
+                  {selectData.length !== 0 ? (
+                     <Events events={selectData} />
+                  ) : null}
+               </CreateRules>
+            );
+      }
+   };
    return (
       <>
-         <Header rules={convertResults} getAllEvents={getAllEvents} />
-         <Main selectData={selectData} loadAllRule={loadAllRule}>
-            {rules.length !== 0 ? <Rules rules={rules} /> : null}
-            {selectData.length !== 0 ? <Events events={selectData} /> : null}
-         </Main>
+         <Manu
+            rules={convertResults}
+            getAllEvents={getAllEvents}
+            setPage={setPage}
+         />
+         {renderPage()}
          <ToastContainer
             position="bottom-right"
             autoClose={5000}
@@ -116,73 +152,5 @@ function App() {
       </>
    );
 }
-
-const Events = ({ events }) => {
-   return (
-      <>
-         <table className="table table-bordered table-hover col-12 bg-white">
-            <thead className="thead-dark">
-               <tr>
-                  <th scope="col">Loại sự kiện</th>
-                  <th scope="col">Sự Kiện</th>
-               </tr>
-            </thead>
-            <tbody>
-               {events.map((item) =>
-                  item.options.map((ele, index) => (
-                     <tr key={index}>
-                        {index === 0 ? (
-                           <th
-                              className="font-weight-bold align-middle text-center"
-                              scope="row"
-                              rowSpan={item.options.length}
-                           >
-                              {item.label}
-                           </th>
-                        ) : null}
-                        <td>{ele.label}</td>
-                     </tr>
-                  ))
-               )}
-            </tbody>
-         </table>
-      </>
-   );
-};
-
-const Rules = ({ rules }) => {
-   return (
-      <>
-         <table className="table table-bordered table-hover bg-white col-12">
-            <thead className="thead-dark">
-               <tr>
-                  <th scope="col">Sự kiện</th>
-                  <th scope="col">Kết quả</th>
-               </tr>
-            </thead>
-            <tbody>
-               {rules.map((item) => (
-                  <tr key={item.id} style={{ cursor: 'pointer' }}>
-                     <td className="text-center" scope="row">
-                        {item.events.map((ele, index) => (
-                           <span key={index}>
-                              <b>{ele}</b>
-                              {index != item.events.length - 1
-                                 ? '  ^  '
-                                 : '  =>'}
-                           </span>
-                        ))}
-                     </td>
-
-                     <td>
-                        <b>{item.result}</b>
-                     </td>
-                  </tr>
-               ))}
-            </tbody>
-         </table>
-      </>
-   );
-};
 
 export default App;

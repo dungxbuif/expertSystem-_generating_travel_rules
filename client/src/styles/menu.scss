@@ -1,0 +1,159 @@
+:root {
+   --bg: #242526 !important;
+   --bg-accent: #484a4d !important;
+   --text-color: #dadce1 !important;
+   --nav-size: 60px !important;
+   --border: 1px solid #474a4d !important;
+   --border-radius: 8px !important;
+   --speed: 500ms !important;
+}
+
+ul {
+   list-style: none !important;
+   margin: 0 !important;
+   padding: 0 !important;
+}
+
+a {
+   color: var(--text-color) !important;
+   text-decoration: none !important;
+}
+
+/* Top Navigation Bar */
+
+/* <nav> */
+// .menu-container {
+//    height: 60px !important;
+//    padding: 0 1rem !important;
+//    box-sizing: unset !important;
+/* <ul> */
+// .menu-content {
+//    max-width: 100% !important;
+//    height: 100% !important;
+//    display: flex !important;
+//    justify-content: flex-end !important;
+//    box-sizing: unset !important;
+// }
+
+/* <li> */
+.menu-button {
+   position: relative;
+   left: calc(100% - 70px);
+   top: 10px;
+   width: 60px !important;
+   display: flex !important;
+   align-items: center !important;
+   justify-content: center !important;
+   box-sizing: unset !important;
+   .icon-button {
+      cursor: pointer !important;
+      --button-size: 30px !important;
+      width: var(--button-size) !important;
+      height: var(--button-size) !important;
+      background-color: white !important;
+      border-radius: 50% !important;
+      padding: 5px !important;
+      margin: 2px !important;
+      display: flex !important;
+      align-items: center !important;
+      justify-content: center !important;
+      transition: filter 300ms !important;
+      box-sizing: unset !important;
+      i {
+         color: #242526 !important;
+         font-size: 19px !important;
+      }
+   }
+
+   .icon-button:hover {
+      filter: brightness(1.2) !important;
+   }
+
+   .icon-button svg {
+      fill: #242526 !important;
+      width: 20px !important;
+      height: 20px !important;
+   }
+}
+
+/* Icon Button */
+
+/* Dropdown Menu */
+
+.dropdown {
+   position: absolute !important;
+   top: 58px !important;
+   width: 300px !important;
+   transform: translateX(-45%) !important;
+   background-color: white !important;
+   border: var(--border) !important;
+   border-radius: var(--border-radius) !important;
+   padding: 1rem !important;
+   overflow: hidden !important;
+   transition: height var(--speed) ease !important;
+   box-sizing: unset !important;
+}
+
+.menu {
+   width: 100% !important;
+}
+
+.menu-item {
+   cursor: pointer !important;
+   height: 50px !important;
+   display: flex !important;
+   align-items: center !important;
+   border-radius: var(--border-radius) !important;
+   transition: background var(--speed) !important;
+   padding: 0.5rem !important;
+   color: black !important;
+   box-sizing: unset !important;
+   .icon-button {
+      margin-right: 0.5rem !important;
+      background-color: #e9ebec !important;
+   }
+
+   .icon-button:hover {
+      filter: none !important;
+   }
+}
+
+.menu-item:hover {
+   background-color: gainsboro !important;
+}
+
+.icon-right {
+   margin-left: auto !important;
+}
+
+/* CSSTransition classes  */
+.menu-primary-enter {
+   position: absolute !important;
+   transform: translateX(-110%) !important;
+}
+.menu-primary-enter-active {
+   transform: translateX(0%) !important;
+   transition: all var(--speed) ease !important;
+}
+.menu-primary-exit {
+   position: absolute !important;
+}
+.menu-primary-exit-active {
+   transform: translateX(-110%) !important;
+   transition: all var(--speed) ease !important;
+}
+
+.menu-secondary-enter {
+   transform: translateX(110%) !important;
+}
+.menu-secondary-enter-active {
+   transform: translateX(0%) !important;
+   transition: all var(--speed) ease !important;
+}
+.menu-secondary-exit {
+}
+.menu-secondary-exit-active {
+   transform: translateX(110%) !important;
+   transition: all var(--speed) ease !important;
+}
+// }

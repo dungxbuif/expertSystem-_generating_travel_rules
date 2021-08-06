@@ -1,10 +1,10 @@
 import React, { useState } from 'react';
 import Select from 'react-select';
-import '../styles/main.scss';
 import * as api from '../apis';
 import { toast } from 'react-toastify';
+import '../styles/boostrap.scss';
 
-export default function Main({ selectData, children, loadAllRule }) {
+export default function CreateRules({ selectData, children, loadAllRule }) {
    const [selectedOption, setSelectedOption] = useState(null);
    const [events, setEvents] = useState(null);
    const [result, setResult] = useState(null);
@@ -106,7 +106,7 @@ export default function Main({ selectData, children, loadAllRule }) {
                   {events.map((ele, index) => (
                      <span key={index}>
                         <b>{ele}</b>
-                        {index != events.length - 1 ? '  ^  ' : '  =>'}
+                        {index !== events.length - 1 ? '  ^  ' : '  =>'}
                      </span>
                   ))}
                   {result != null ? <b>{result.value}</b> : null}

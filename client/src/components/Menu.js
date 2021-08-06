@@ -1,9 +1,9 @@
-import { ReactComponent as ArrowIcon } from '../icons/arrow.svg';
 import React, { useState, useEffect, useRef } from 'react';
-import '../styles/header.scss';
+import '../styles/menu.scss';
 import { toast } from 'react-toastify';
+import { PageType } from '../config/PageType';
 
-export default function header({ getAllEvents, rules }) {
+export default function Menu({ getAllEvents, rules, setPage }) {
    const NavItem = (props) => {
       const [open, setOpen] = useState(false);
 
@@ -45,12 +45,18 @@ export default function header({ getAllEvents, rules }) {
             ref={dropdownRef}
          >
             <div className="menu">
-               <DropdownItem goToMenu="main" leftIcon="📝">
+               <DropdownItem
+                  goToMenu="main"
+                  leftIcon="📝"
+                  onClick={testOnClick}
+               >
                   Tạo tập luật
                </DropdownItem>
                <DropdownItem leftIcon="🗃️">Quản lý loại sự kiện</DropdownItem>
                <DropdownItem leftIcon="🏷️">Quản lý sự kiện</DropdownItem>
-               <DropdownItem leftIcon="📄">Quản lý luật</DropdownItem>
+               <DropdownItem leftIcon="📄" onClick={testOnClick}>
+                  Tìm địa điểm
+               </DropdownItem>
                <DropdownItem leftIcon="📥" onClick={testOnClick}>
                   Tải tập luật
                </DropdownItem>
@@ -75,14 +81,18 @@ export default function header({ getAllEvents, rules }) {
          createFile(rules(), 'Rules.txt');
          createFile(await getAllEvents(), 'Events.txt');
       }
+
+      if (e.target.innerText.includes('Tìm địa điểm')) {
+         setPage(PageType.FIND_PLACES);
+      }
+
+      if (e.target.innerText.includes('Tạo tập luật')) {
+         setPage(PageType.CREATE_RULES);
+      }
    };
    return (
-      <div className="header-container">
-         <div className="header-content">
-            <NavItem icon={<i className="fas fa-bars"></i>}>
-               <DropdownMenu></DropdownMenu>
-            </NavItem>
-         </div>
-      </div>
+      <NavItem icon={<i className="fas fa-bars"></i>}>
+         <DropdownMenu></DropdownMenu>
+      </NavItem>
    );
 }
