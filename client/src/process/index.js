@@ -1,10 +1,16 @@
 import _ from 'lodash';
 const KET_LUAN = ['H'];
-const LOG = [];
+var LOG = [];
 var ketQuaTungSuKien = [];
+
 const excute = (events, rules) => {
+   LOG = [];
+   ketQuaTungSuKien = [];
+   // Xét thuật toán suy diễn tiến với toàn bộ sự kiện
    const ketQuaToanBo = xetToanBoSuKien(events, rules);
+
    var lastResult = [];
+
    //Xét riêng lẻ từng sự kiện
    if (events.length > 1) {
       LOG.unshift('====Xét toàn bộ sự kiện====');
@@ -13,11 +19,14 @@ const excute = (events, rules) => {
          xetTungSuKien(item, rules);
       });
 
+      //Lọc các kết quả trùng nhau
       if (ketQuaToanBo.length && ketQuaTungSuKien.length) {
          LOG.push(`Tiến hành lọc trùng chọn ra kết quả được chọn nhiều nhất`);
+         //Trộn tất cả kết quả thu được vào 1 mảng arr
          let arr = [...ketQuaToanBo, ...ketQuaTungSuKien];
          let max = arr[0];
-         let allMax = [];
+
+         //Tìm số lần các sự kiện được lặp lại
          let uniq = arr
             .map((name) => {
                return {
@@ -30,19 +39,57 @@ const excute = (events, rules) => {
                if (a[b.name] >= a[max]) max = b.name;
                return a;
             }, {});
-         allMax.push(max.split(':')[1]);
+         lastResult.push(max.split(':')[1]);
+         //Sau khi tìm được số lần lặp thì tìm ra những sự kiện đưuọc lặp nhiều nhất
          arr.forEach((ele) => {
             if (ele !== max && uniq[max] === uniq[ele])
-               allMax.push(ele.split(':')[1]);
+               lastResult.push(ele.split(':')[1]);
          });
+         // Cho vào Set để lọc trùng
+         lastResult = [...new Set([...lastResult])];
+         LOG.push(
+            `Kết quả cuối cùng: ${
+               lastResult.length > 1 ? lastResult.join(' và ') : lastResult[0]
+            }`
+         );
+      } else {
+         LOG.push(`Tiến hành lọc trùng chọn ra kết quả được chọn nhiều nhất`);
+         //Trộn tất cả kết quả thu được vào 1 mảng arr
+         let arr = [...ketQuaTungSuKien];
+         let max = arr[0];
 
-         LOG.push(`Kết quả cuối cùng: ${allMax.join('\n')}`);
+         //Tìm số lần các sự kiện được lặp lại
+         let uniq = arr
+            .map((name) => {
+               return {
+                  count: 1,
+                  name: name,
+               };
+            })
+            .reduce((a, b) => {
+               a[b.name] = (a[b.name] || 0) + b.count;
+               if (a[b.name] >= a[max]) max = b.name;
+               return a;
+            }, {});
+         lastResult.push(max.split(':')[1]);
+         //Sau khi tìm được số lần lặp thì tìm ra những sự kiện đưuọc lặp nhiều nhất
+         arr.forEach((ele) => {
+            if (ele !== max && uniq[max] === uniq[ele])
+               lastResult.push(ele.split(':')[1]);
+         });
+         // Cho vào Set để lọc trùng
+         lastResult = [...new Set([...lastResult])];
+         LOG.push(
+            `Kết quả cuối cùng: ${
+               lastResult.length > 1 ? lastResult.join(' và ') : lastResult[0]
+            }`
+         );
       }
    }
-   // console.log(ketQuaToanBo);
+
    LOG.push('Kết thúc thuật toán');
 
-   return LOG;
+   return { LOG, lastResult };
 };
 
 function khoiTaoTapLuatBanDau(rules) {
@@ -79,14 +126,16 @@ function xetToanBoSuKien(events, rules) {
    let flag = true;
    let tapKetLuan = [];
 
-   // Xét toàn bộ sự kiện
+   // Chạy thuật toán
    while (flag) {
       LOG.push(`Lần duyệt thứ ${i}, các luật thỏa: `);
+      //Tìm các luật thỏa SAT
       timLuatThoa({ events, maTapLuatBanDau });
       if (!tapLuatThoa.length) {
          LOG.push('Không tìm được kết quả');
          break;
       }
+      //Xét luật thỏa đầu tiên trong mảng
       xetLuatDauTien();
       i++;
       if (!tapKetLuan.length && !tapLuatThoa.length) {
@@ -104,7 +153,7 @@ function xetToanBoSuKien(events, rules) {
    function timLuatThoa() {
       let maLuatThoa = [];
 
-      // Tiến hành tìm các luật thỏa
+      // Lặp tất cả để tìm các luật thỏa
       maTapLuatBanDau.forEach((maLuat) => {
          if (
             tapLuatBanDau[maLuat].events.every((e) =>
@@ -119,7 +168,7 @@ function xetToanBoSuKien(events, rules) {
 
       if (!maLuatThoa.length) LOG.push(`Không tìm thấy luật thỏa`);
 
-      //Xóa luật thỏa khỏi mảng các luật
+      //Xóa luật thỏa khỏi mảng tất cả các luật
       let tmp = _.differenceWith(maTapLuatBanDau, maLuatThoa, _.isEqual);
       maTapLuatBanDau = tmp;
    }

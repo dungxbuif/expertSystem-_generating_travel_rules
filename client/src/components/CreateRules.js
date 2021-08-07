@@ -71,6 +71,7 @@ export default function CreateRules({ selectData, children, loadAllRule }) {
                className="w-50"
                options={selectData}
                placeholder="Chọn sự kiện..."
+               isDisabled={selectData.length ? false : true}
             />
             {result ? null : (
                <button

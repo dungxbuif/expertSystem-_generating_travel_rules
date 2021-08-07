@@ -29,7 +29,7 @@ const getGroupEvents = async (req, res, next) => {
          const eventTypesObj = Object.fromEntries(
             eventTypesArr.map((item) => [
                item[0],
-               { label: item[1], options: [] },
+               { label: item[1], value: item[0], options: [] },
             ])
          );
          const eventsArr = [...res2.data];
@@ -203,6 +203,85 @@ const getAllEvents = async (req, res, next) => {
    }
 };
 
+const createEventType = async (req, res, next) => {
+   try {
+      const size = await spreadsheetsServices.getSize(SPREADSHEETS.EVENT_TYPES);
+      const ID = String.fromCharCode(65 + size) + '';
+      console.log(ID);
+      const { eventsType } = req.body;
+      const value = [[ID, eventsType]];
+
+      const saveResult = await spreadsheetsServices.append(
+         SPREADSHEETS.EVENT_TYPES,
+         value
+      );
+
+      if (saveResult.code == 1) {
+         res.send({
+            code: 1,
+            message: `Create New EventType succeed`,
+         });
+      } else {
+         res.send({
+            code: 0,
+            message: `Create New EventType failed !!!`,
+         });
+      }
+   } catch (e) {
+      console.log(log.error(`Create New EventType failed: ${e.message}`));
+      res.send({
+         code: 0,
+         message: `Create New EventType failed !!!`,
+      });
+   }
+};
+
+const createEvent = async (req, res, next) => {
+   const { ID, event } = req.body;
+   try {
+      var index;
+      const eventsArr = (
+         await spreadsheetsServices.getTable(SPREADSHEETS.EVENTS)
+      ).data;
+      const value = [null, ID, event];
+      for (let i = eventsArr.length - 1; i >= 0; i--) {
+         if (eventsArr[i][1] === ID) {
+            let eventID = eventsArr[i][0];
+            eventID = parseInt(eventID.replace(ID, ''));
+            eventID++;
+            value[0] = `${ID}${eventID}`;
+            index = i + 3;
+            break;
+         }
+      }
+
+      const saveResult = await spreadsheetsServices.addRow(
+         SPREADSHEETS.EVENTS,
+         SPREADSHEETS.EVENTS_NUM,
+         +index,
+         [value]
+      );
+
+      if (saveResult.code == 1) {
+         res.send({
+            code: 1,
+            message: `Create New Event succeed`,
+         });
+      } else {
+         res.send({
+            code: 0,
+            message: `Create New Event failed !!!`,
+         });
+      }
+   } catch (e) {
+      console.log(log.error(`Create New EventType failed: ${e.message}`));
+      res.send({
+         code: 0,
+         message: `Create New EventType failed !!!`,
+      });
+   }
+};
+
 module.exports = {
    eventTypesController: {
       get: getEventType,
@@ -212,4 +291,6 @@ module.exports = {
    getAllRules,
    createNewRule,
    getAllEvents,
+   createEvent,
+   createEventType,
 };

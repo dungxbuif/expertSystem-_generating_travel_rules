@@ -101,4 +101,47 @@ const getSize = (table) => {
    });
 };
 
-module.exports = { getTable, append, getSize };
+const addRow = (table, table_num, index, values = []) => {
+   return new Promise(async (resolve, rejects) => {
+      try {
+         const sheets = await googleSheets();
+         await sheets.spreadsheets
+            .batchUpdate({
+               auth,
+               spreadsheetId,
+               resource: {
+                  requests: {
+                     insertDimension: {
+                        range: {
+                           sheetId: table_num,
+                           dimension: 'ROWS',
+                           startIndex: index - 1,
+                           endIndex: index,
+                        },
+                        inheritFromBefore: true,
+                     },
+                  },
+               },
+            })
+            .then(async () => {
+               await sheets.spreadsheets.values.update({
+                  auth,
+                  spreadsheetId,
+                  range: `${table}!A${index}:C${index}`,
+                  valueInputOption: 'USER_ENTERED',
+                  resource: {
+                     values,
+                  },
+               });
+            });
+
+         console.log(log.succeed(`Get spreadsheet ${table} length succeed`));
+
+         resolve({ code: 1, message: 'succeed' });
+      } catch (e) {
+         rejects({ code: 0, message: e.message });
+      }
+   });
+};
+
+module.exports = { getTable, append, getSize, addRow };

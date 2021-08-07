@@ -52,9 +52,10 @@ export default function Menu({ getAllEvents, rules, setPage }) {
                >
                   Tạo tập luật
                </DropdownItem>
-               <DropdownItem leftIcon="🗃️">Quản lý loại sự kiện</DropdownItem>
-               <DropdownItem leftIcon="🏷️">Quản lý sự kiện</DropdownItem>
-               <DropdownItem leftIcon="📄" onClick={testOnClick}>
+               <DropdownItem leftIcon="🗃️" onClick={testOnClick}>
+                  Quản sự kiện
+               </DropdownItem>
+               <DropdownItem leftIcon="🗺" onClick={testOnClick}>
                   Tìm địa điểm
                </DropdownItem>
                <DropdownItem leftIcon="📥" onClick={testOnClick}>
@@ -84,6 +85,10 @@ export default function Menu({ getAllEvents, rules, setPage }) {
 
       if (e.target.innerText.includes('Tìm địa điểm')) {
          setPage(PageType.FIND_PLACES);
+      }
+
+      if (e.target.innerText.includes('Quản sự kiện')) {
+         setPage(PageType.MANAGE_EVENTS);
       }
 
       if (e.target.innerText.includes('Tạo tập luật')) {

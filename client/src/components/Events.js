@@ -1,6 +1,6 @@
 import React from 'react';
 
-export default function Events({ events }) {
+export default function Events({ events, handleDelete = null }) {
    return (
       <>
          <table className="table table-bordered table-hover col-12 bg-white">
@@ -20,10 +20,15 @@ export default function Events({ events }) {
                               scope="row"
                               rowSpan={item.options.length}
                            >
-                              {item.label}
+                              {`${item.value}: ${item.label}`}
                            </th>
                         ) : null}
-                        <td>{ele.label}</td>
+                        <td className="d-flex justify-content-between align-items-center">
+                           {ele.value}{' '}
+                           {/* {handleDelete !== null ? (
+                              <button className="btn btn-danger">Xóa</button>
+                           ) : null} */}
+                        </td>
                      </tr>
                   ))
                )}

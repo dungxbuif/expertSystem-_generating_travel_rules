@@ -5,15 +5,11 @@ import '../styles/boostrap.scss';
 import Algorithm from '../process';
 import _ from 'lodash';
 
-export default function FindPlaces({
-   selectData,
-   children,
-   loadAllRule,
-   rules,
-}) {
+export default function FindPlaces({ selectData, rules }) {
    const [selectedOption, setSelectedOption] = useState(null);
    const [events, setEvents] = useState(null);
    const [log, setLog] = useState(null);
+   const [lastResult, setLastResult] = useState(null);
 
    const handleChange = (e) => {
       setSelectedOption(e);
@@ -34,36 +30,22 @@ export default function FindPlaces({
             draggable: false,
             progress: undefined,
          });
-         let process = Algorithm.excute(events, rules);
+         let { LOG, lastResult } = Algorithm.excute(events, rules);
+         console.log({ events, rules });
+         console.log({ LOG, lastResult });
          toast.dismiss();
-         toast.success('🚀 Creating rule succeed !!!');
-         setLog(process);
+         toast.success('🚀 Finding places succeed !!!');
+         setLog(LOG);
+         setLastResult(lastResult);
       }
    };
    const reset = () => {
+      setSelectedOption(null);
       setEvents(null);
+      setLog(null);
+      setLastResult(null);
    };
-   // const handleSave = async () => {
-   //    const sendResult = result.value;
-   //    let sendData = {
-   //       result: sendResult,
-   //       events,
-   //    };
-   //
-   //    const res = await api.createNewRule(sendData);
-   //    if (res.data.code === 1) {
-   //       toast.dismiss();
-   //       toast.success('🚀 Creating rule succeed !!!');
-   //       reset();
-   //       loadAllRule();
-   //    } else if (res.data.code === 2) {
-   //       toast.dismiss();
-   //       toast.warning(`📑 ${res.data.message}`);
-   //    } else {
-   //       toast.dismiss();
-   //       toast.error('🔥 Creating rule failed !!!');
-   //    }
-   // };
+
    return (
       <div className="container">
          <div className="row justify-content-center pt-5 mt-5 ">
@@ -102,6 +84,11 @@ export default function FindPlaces({
                         {index !== events.length - 1 ? '  ^  ' : null}
                      </span>
                   ))}
+                  {lastResult !== null && lastResult.length === 1 ? (
+                     <b>{` => ${lastResult[0]}`}</b>
+                  ) : lastResult !== null && lastResult.length > 1 ? (
+                     <b>{` => ${lastResult.join(' v ')}`}</b>
+                  ) : null}
                </div>
             )}
          </div>

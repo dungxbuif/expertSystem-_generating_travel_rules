@@ -5,6 +5,8 @@ const {
    getAllRules,
    createNewRule,
    getAllEvents,
+   createEvent,
+   createEventType,
 } = require('./spreadSheetsController');
 
 module.exports = {
@@ -13,4 +15,6 @@ module.exports = {
    getAllRules,
    createNewRule,
    getAllEvents,
+   createEvent,
+   createEventType,
 };

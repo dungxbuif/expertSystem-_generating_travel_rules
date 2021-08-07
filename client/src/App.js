@@ -2,6 +2,7 @@ import Manu from './components/Menu';
 import CreateRules from './components/CreateRules';
 import Events from './components/Events';
 import Rules from './components/Rules';
+import ManageEvents from './components/ManageEvents';
 import FindPlaces from './components/FindPlaces';
 import { useState, useEffect } from 'react';
 import * as api from './apis';
@@ -118,6 +119,18 @@ function App() {
                      <Events events={selectData} />
                   ) : null}
                </FindPlaces>
+            );
+         case PageType.MANAGE_EVENTS:
+            return (
+               <ManageEvents
+                  selectData={selectData}
+                  loadAllRule={loadAllRule}
+                  rules={rules}
+               >
+                  {selectData.length !== 0 ? (
+                     <Events events={selectData} />
+                  ) : null}
+               </ManageEvents>
             );
          default:
             return (

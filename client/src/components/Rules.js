@@ -13,19 +13,16 @@ export default function Rules({ rules }) {
             <tbody>
                {rules.map((item) => (
                   <tr key={item.id} style={{ cursor: 'pointer' }}>
-                     <td className="text-center" scope="row">
-                        {item.events.map((ele, index) => (
-                           <span key={index}>
-                              <b>{ele}</b>
-                              {index != item.events.length - 1
-                                 ? '  ^  '
-                                 : '  =>'}
-                           </span>
-                        ))}
+                     <td
+                        className="text-center vertical-align-middle font-weight-bold"
+                        scope="row"
+                     >
+                        {item.events.join(' ^ ')}
                      </td>
 
-                     <td>
+                     <td className="d-flex justify-content-between align-items-center">
                         <b>{item.result}</b>
+                        {/* <button className="btn btn-danger">Xóa</button> */}
                      </td>
                   </tr>
                ))}
