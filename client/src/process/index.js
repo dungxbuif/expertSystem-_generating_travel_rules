@@ -1,96 +1,84 @@
 import _ from 'lodash';
-const KET_LUAN = ['H'];
+
+//Khai báo một số hằng
+const KET_LUAN = ['H', 'A'];
+const SU_KIEN_NGOAI_LE = ['C5', 'C3', 'G1', 'G2'];
+
+//Khai báo 1 số biến toàn cục
+var suKienNgoaiLe = [];
+var kqNgoaiLe = [];
 var LOG = [];
 var ketQuaTungSuKien = [];
+var lastResult = [];
 
 const excute = (events, rules) => {
+   //Reset biến toàn cục
    LOG = [];
    ketQuaTungSuKien = [];
-   // Xét thuật toán suy diễn tiến với toàn bộ sự kiện
-   const ketQuaToanBo = xetToanBoSuKien(events, rules);
+   kqNgoaiLe = [];
+   suKienNgoaiLe = [];
+   lastResult = [];
 
-   var lastResult = [];
+   // Xét thuật toán suy diễn tiến với toàn bộ sự kiện
+   let ketQuaToanBo = xetToanBoSuKien(events, rules);
+
+   if (events.length > 1) LOG.unshift('====Xét toàn bộ sự kiện====');
 
    //Xét riêng lẻ từng sự kiện
-   if (events.length > 1) {
-      LOG.unshift('====Xét toàn bộ sự kiện====');
-      events.forEach((item) => {
-         LOG.push(`====Xét riêng sự kiện ${item}====`);
-         xetTungSuKien(item, rules);
-      });
+   eachEvents(events, rules);
 
-      //Lọc các kết quả trùng nhau
-      if (ketQuaToanBo.length && ketQuaTungSuKien.length) {
-         LOG.push(`Tiến hành lọc trùng chọn ra kết quả được chọn nhiều nhất`);
-         //Trộn tất cả kết quả thu được vào 1 mảng arr
-         let arr = [...ketQuaToanBo, ...ketQuaTungSuKien];
-         let max = arr[0];
+   LOG.push('Chọn ra các kết quả trùng lặp');
+   let ketQuaTrungLap = getDuplicateValue(ketQuaTungSuKien);
 
-         //Tìm số lần các sự kiện được lặp lại
-         let uniq = arr
-            .map((name) => {
-               return {
-                  count: 1,
-                  name: name,
-               };
-            })
-            .reduce((a, b) => {
-               a[b.name] = (a[b.name] || 0) + b.count;
-               if (a[b.name] >= a[max]) max = b.name;
-               return a;
-            }, {});
-         lastResult.push(max.split(':')[1]);
-         //Sau khi tìm được số lần lặp thì tìm ra những sự kiện đưuọc lặp nhiều nhất
-         arr.forEach((ele) => {
-            if (ele !== max && uniq[max] === uniq[ele])
-               lastResult.push(ele.split(':')[1]);
-         });
-         // Cho vào Set để lọc trùng
-         lastResult = [...new Set([...lastResult])];
-         LOG.push(
-            `Kết quả cuối cùng: ${
-               lastResult.length > 1 ? lastResult.join(' và ') : lastResult[0]
-            }`
-         );
+   let tatCaCacKQ = [...ketQuaToanBo, ...ketQuaTrungLap];
+   if (suKienNgoaiLe.length) {
+      LOG.push('Lọc các kết quả ngoại lệ');
+
+      /* Nếu có sự kiện ngoại lệ mà các sự kiện đó không
+       có kết quả trùng thì kết quả cuối cùng cũng không có*/
+      if (kqNgoaiLe.length == 0) {
+         lastResult = [];
       } else {
-         LOG.push(`Tiến hành lọc trùng chọn ra kết quả được chọn nhiều nhất`);
-         //Trộn tất cả kết quả thu được vào 1 mảng arr
-         let arr = [...ketQuaTungSuKien];
-         let max = arr[0];
-
-         //Tìm số lần các sự kiện được lặp lại
-         let uniq = arr
-            .map((name) => {
-               return {
-                  count: 1,
-                  name: name,
-               };
-            })
-            .reduce((a, b) => {
-               a[b.name] = (a[b.name] || 0) + b.count;
-               if (a[b.name] >= a[max]) max = b.name;
-               return a;
-            }, {});
-         lastResult.push(max.split(':')[1]);
-         //Sau khi tìm được số lần lặp thì tìm ra những sự kiện đưuọc lặp nhiều nhất
-         arr.forEach((ele) => {
-            if (ele !== max && uniq[max] === uniq[ele])
-               lastResult.push(ele.split(':')[1]);
-         });
-         // Cho vào Set để lọc trùng
-         lastResult = [...new Set([...lastResult])];
-         LOG.push(
-            `Kết quả cuối cùng: ${
-               lastResult.length > 1 ? lastResult.join(' và ') : lastResult[0]
-            }`
-         );
+         lastResult = getDuplicateValue([...tatCaCacKQ, ...kqNgoaiLe]);
       }
+   } else {
+      lastResult = [...new Set(tatCaCacKQ)];
    }
+
+   let suggests = _.differenceWith(tatCaCacKQ, lastResult, _.isEqual).map(
+      (item) => item.split(': ')[1]
+   );
+   LOG.push(
+      `==> Kết quả cuối cùng: ${
+         lastResult.length > 1
+            ? lastResult.map((item) => item.split(': ')[1]).join(' v ')
+            : lastResult.length == 1
+            ? lastResult[0]
+            : 'Không tìm thấy kết quả'
+      }`
+   );
 
    LOG.push('Kết thúc thuật toán');
 
-   return { LOG, lastResult };
+   return { LOG, lastResult, suggests };
 };
+
+function eachEvents(events, rules) {
+   events.forEach((item) => {
+      if (events.length > 1) LOG.push(`====Xét riêng sự kiện ${item}====`);
+      xetTungSuKien(item, rules);
+   });
+}
+
+function getDuplicateValue(arr) {
+   const count = (names) =>
+      names.reduce((a, b) => ({ ...a, [b]: (a[b] || 0) + 1 }), {});
+
+   const duplicates = (dict) => Object.keys(dict).filter((a) => dict[a] > 1);
+
+   //Trả lại mảng các phần từ trùng nhau
+   return duplicates(count(arr));
+}
 
 function khoiTaoTapLuatBanDau(rules) {
    let arr = [...rules];
@@ -107,13 +95,28 @@ function khoiTaoTapLuatBanDau(rules) {
 }
 
 function xetTungSuKien(event, rules) {
-   const data = [];
+   let data = [];
+   let flag = false;
+   if (SU_KIEN_NGOAI_LE.indexOf(event.split(': ')[0]) !== -1) {
+      LOG.push('Phát hiện sự kiện ngoại lệ');
+      suKienNgoaiLe.push(event);
+   }
+
+   if (suKienNgoaiLe.length > 1) flag = true;
+
    rules.filter((item) => {
       if (item.events.includes(event) && !data.includes(item.result)) {
          data.push(item.result);
+         if (SU_KIEN_NGOAI_LE.indexOf(event.split(': ')[0]) !== -1)
+            kqNgoaiLe.push(item.result);
          LOG.push(`Tìm thấy kết quả: ${item.result.split(':')[1]}`);
       }
    });
+
+   if (flag) {
+      let tmp = getDuplicateValue(kqNgoaiLe);
+      kqNgoaiLe = tmp;
+   }
 
    ketQuaTungSuKien = [...ketQuaTungSuKien, ...data];
 }
@@ -199,6 +202,7 @@ function xetToanBoSuKien(events, rules) {
       //Kiểm tra kết quả đã có trong mệnh đề hay không
       kiemTraKetQua(tmpLuat.result);
    }
+
    function formatLuat(luat) {
       let REULTS = luat.result.split(':')[1];
       let string = '';

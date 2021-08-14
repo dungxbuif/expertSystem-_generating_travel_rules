@@ -2,6 +2,7 @@ const express = require('express');
 const app = express();
 const chalk = require('chalk');
 const route = require('./routes');
+const path = require('path');
 const cors = require('cors');
 require('dotenv').config();
 
@@ -9,8 +10,9 @@ require('dotenv').config();
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
 app.use(cors({ origin: true }));
+app.use('/', express.static(path.join(__dirname, 'build')));
+
 // app.use(function (req, res, next) {
-//    console.log(req);
 //    res.setHeader('Access-Control-Allow-Origin', '*');
 //    res.setHeader(
 //       'Access-Control-Allow-Methods',
@@ -23,14 +25,6 @@ app.use(cors({ origin: true }));
 //    res.setHeader('Access-Control-Allow-Credentials', true);
 
 //    next();
-// });
-// app.use(function (req, res, next) {
-//    if (req.headers.origin === 'http://localhost:3000') next();
-//    else
-//       res.json({
-//          code: 3,
-//          message: 'You do not have permission to access this url',
-//       });
 // });
 
 const PORT = process.env.PORT || 4000;

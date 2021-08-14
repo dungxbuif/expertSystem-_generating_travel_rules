@@ -8,6 +8,7 @@ import _ from 'lodash';
 export default function FindPlaces({ selectData, rules }) {
    const [selectedOption, setSelectedOption] = useState(null);
    const [events, setEvents] = useState(null);
+   const [suggest, setSuggest] = useState(null);
    const [log, setLog] = useState(null);
    const [lastResult, setLastResult] = useState(null);
 
@@ -30,13 +31,13 @@ export default function FindPlaces({ selectData, rules }) {
             draggable: false,
             progress: undefined,
          });
-         let { LOG, lastResult } = Algorithm.excute(events, rules);
-         console.log({ events, rules });
-         console.log({ LOG, lastResult });
+         let { LOG, lastResult, suggests } = Algorithm.excute(events, rules);
+
          toast.dismiss();
          toast.success('🚀 Finding places succeed !!!');
          setLog(LOG);
          setLastResult(lastResult);
+         setSuggest(suggests);
       }
    };
    const reset = () => {
@@ -44,6 +45,7 @@ export default function FindPlaces({ selectData, rules }) {
       setEvents(null);
       setLog(null);
       setLastResult(null);
+      setSuggest(null);
    };
 
    return (
@@ -75,20 +77,49 @@ export default function FindPlaces({ selectData, rules }) {
                </button>
             ) : null}
          </div>
-         <div className="row justify-content-center mt-5">
+         <div className="row justify-content-center mt-5 mb-3">
             {events && (
                <div className="alert alert-success mt-5" role="alert">
                   {events.map((ele, index) => (
                      <span key={index}>
-                        <b>{ele}</b>
-                        {index !== events.length - 1 ? '  ^  ' : null}
+                        <b>{ele.split(': ')[1]}</b>
+                        {index !== events.length - 1 ? '  ^  ' : ' => '}
                      </span>
                   ))}
                   {lastResult !== null && lastResult.length === 1 ? (
-                     <b>{` => ${lastResult[0]}`}</b>
+                     <b>{lastResult[0]}</b>
                   ) : lastResult !== null && lastResult.length > 1 ? (
-                     <b>{` => ${lastResult.join(' v ')}`}</b>
-                  ) : null}
+                     <b>
+                        {lastResult
+                           .map((item) => item.split(': ')[1])
+                           .join(' v ')}
+                     </b>
+                  ) : (
+                     <span
+                        className="badge badge-danger"
+                        style={{ fontSize: '1rem' }}
+                     >
+                        Không có kết quả
+                     </span>
+                  )}
+               </div>
+            )}
+         </div>
+         <div className="row justify-content-center">
+            {suggest && suggest.length && (
+               <div className="alert alert-info" role="alert">
+                  <span
+                     className="badge badge-warning"
+                     style={{ fontSize: '1rem' }}
+                  >
+                     Gợi ý:
+                  </span>{' '}
+                  {suggest.map((ele, index) => (
+                     <span key={index}>
+                        <b>{ele}</b>
+                        {index !== suggest.length - 1 ? '    v    ' : null}
+                     </span>
+                  ))}
                </div>
             )}
          </div>
@@ -108,18 +139,22 @@ export default function FindPlaces({ selectData, rules }) {
                                  item.includes('Lần duyệt thứ') ||
                                  item.includes('=> Xét luật') ||
                                  item.includes('Xét riêng') ||
-                                 item.includes('Xét toàn')
+                                 item.includes('Xét toàn') ||
+                                 item.includes('Lọc các kết quả ngoại lệ') ||
+                                 item.includes('Chọn ra các kết quả trùng lặp')
                                     ? 'text-left font-weight-bold'
                                     : item.includes('Tìm thấy')
                                     ? 'alert-success pl-5 text-left'
-                                    : item.includes('Không tìm thấy luật thỏa')
+                                    : item.includes('Không tìm')
                                     ? 'alert-danger pl-5 text-left'
-                                    : item.includes('Kết thúc thuật toán')
-                                    ? 'alert-primary pl-5 text-left'
                                     : item.includes('lọc trùng')
                                     ? 'alert-secondary pl-5 text-left'
                                     : item.includes('Kết quả cuối cùng')
                                     ? 'alert-warning pl-5 text-left'
+                                    : item.includes('Kết thúc thuật toán')
+                                    ? 'alert-dark text-left'
+                                    : item.includes('Phát hiện sự kiện')
+                                    ? 'alert-info text-left'
                                     : 'text-left'
                               }
                               scope="row"

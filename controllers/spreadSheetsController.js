@@ -51,7 +51,7 @@ const getGroupEvents = async (req, res, next) => {
       console.log(log.error(`getGroupEvents failed: ${e.message}`));
       res.send({
          code: 0,
-         message: `getGroupEvents failed !!!`,
+         message: `getGroupEvents failed !!! ${e.message}`,
       });
    }
 };
