@@ -15,6 +15,9 @@ const handleAPI = (req, res, next, method) => {
    if (spreadsheet === 'get-all-events' && method === 'get')
       return spreadSheetsController.getAllEvents(req, res, next);
 
+   if (spreadsheet === 'create-new-rule' && method === 'post')
+      return spreadSheetsController.createNewRule(req, res, next);
+
    if (spreadsheet === 'create-event' && method === 'post')
       return spreadSheetsController.createEvent(req, res, next);
 
@@ -26,22 +29,9 @@ const handleAPI = (req, res, next, method) => {
 
 //[] /api/
 
-router.get('/spreadsheets/:spreadsheet/', (req, res, next) =>
-   handleAPI(req, res, next, 'get')
-);
-router.post('/spreadsheets/:spreadsheet/', (req, res, next) =>
-   handleAPI(req, res, next, 'post')
-);
-router.post('/spreadsheets/:spreadsheet/', (req, res, next) =>
-   handleAPI(req, res, next, 'post')
-);
-router.put('/spreadsheets/:spreadsheet/', (req, res, next) =>
-   handleAPI(req, res, next, 'put')
-);
-router.delete('/spreadsheets/:spreadsheet/', (req, res, next) =>
-   handleAPI(req, res, next, 'delete')
-);
-
-router.post('/create-new-rule/', spreadSheetsController.createNewRule);
+router.get('/:spreadsheet/', (req, res, next) => handleAPI(req, res, next, 'get'));
+router.post('/:spreadsheet/', (req, res, next) => handleAPI(req, res, next, 'post'));
+router.put('/:spreadsheet/', (req, res, next) => handleAPI(req, res, next, 'put'));
+router.delete('/:spreadsheet/', (req, res, next) => handleAPI(req, res, next, 'delete'));
 
 module.exports = router;

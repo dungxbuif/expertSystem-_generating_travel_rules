@@ -10,10 +10,7 @@ const getEventType = async (req, res, next) => {
 
 const appendEventType = async (req, res, next) => {
    const values = req.body.values;
-   const data = await spreadsheetsServices.append(
-      SPREADSHEETS.EVENT_TYPES,
-      values
-   );
+   const data = await spreadsheetsServices.append(SPREADSHEETS.EVENT_TYPES, values);
    res.send(data);
 };
 
@@ -27,10 +24,7 @@ const getGroupEvents = async (req, res, next) => {
          console.log(log.succeed('getGroupEvents succeed!!!'));
          const eventTypesArr = [...res1.data];
          const eventTypesObj = Object.fromEntries(
-            eventTypesArr.map((item) => [
-               item[0],
-               { label: item[1], value: item[0], options: [] },
-            ])
+            eventTypesArr.map((item) => [item[0], { label: item[1], value: item[0], options: [] }]),
          );
          const eventsArr = [...res2.data];
          eventsArr.forEach((ele) => {
@@ -80,14 +74,10 @@ const getAllRulesCommon = () => {
             if (obj[RULE_ID]['result'] === '') {
                let EVENT_KEY_FROM_RESULT = resultsObj[RULE_ID];
                let EVENT_VALUE = eventsObj[EVENT_KEY_FROM_RESULT];
-               obj[RULE_ID][
-                  'result'
-               ] = `${EVENT_KEY_FROM_RESULT}: ${EVENT_VALUE}`;
+               obj[RULE_ID]['result'] = `${EVENT_KEY_FROM_RESULT}: ${EVENT_VALUE}`;
             }
 
-            obj[RULE_ID]['events'].push(
-               `${RULE_VALUE}: ${eventsObj[RULE_VALUE]}`
-            );
+            obj[RULE_ID]['events'].push(`${RULE_VALUE}: ${eventsObj[RULE_VALUE]}`);
 
             return obj;
          }, {});
@@ -119,10 +109,7 @@ const isExistInArray = (x, y) => {
 };
 const checkExistRule = (rules, newRule) => {
    for (let i = 0; i < rules.length; i++) {
-      if (
-         rules[i].result === newRule.result &&
-         isExistInArray(rules[i].events, newRule.events)
-      )
+      if (rules[i].result === newRule.result && isExistInArray(rules[i].events, newRule.events))
          return true;
    }
    return false;
@@ -179,9 +166,7 @@ const createNewRule = async (req, res, next) => {
 
 const getAllEvents = async (req, res, next) => {
    try {
-      const eventsArr = await spreadsheetsServices.getTable(
-         SPREADSHEETS.EVENTS
-      );
+      const eventsArr = await spreadsheetsServices.getTable(SPREADSHEETS.EVENTS);
 
       if (eventsArr.code === 1) {
          console.log(log.succeed('getAllEvents succeed!!!'));
@@ -207,16 +192,21 @@ const createEventType = async (req, res, next) => {
    try {
       const size = await spreadsheetsServices.getSize(SPREADSHEETS.EVENT_TYPES);
       const ID = String.fromCharCode(65 + size) + '';
-      console.log(ID);
-      const { eventsType } = req.body;
-      const value = [[ID, eventsType]];
 
-      const saveResult = await spreadsheetsServices.append(
-         SPREADSHEETS.EVENT_TYPES,
-         value
-      );
+      const { eventType } = req.body;
 
-      if (saveResult.code == 1) {
+      if (!eventType) {
+         return res.status(404).send({
+            code: 0,
+            message: `Missing required parameters !!!`,
+         });
+      }
+
+      const value = [[ID, eventType]];
+
+      const saveResult = await spreadsheetsServices.append(SPREADSHEETS.EVENT_TYPES, value);
+
+      if (saveResult.code === 1) {
          res.send({
             code: 1,
             message: `Create New EventType succeed`,
@@ -240,9 +230,7 @@ const createEvent = async (req, res, next) => {
    const { ID, event } = req.body;
    try {
       var index;
-      const eventsArr = (
-         await spreadsheetsServices.getTable(SPREADSHEETS.EVENTS)
-      ).data;
+      const eventsArr = (await spreadsheetsServices.getTable(SPREADSHEETS.EVENTS)).data;
       const value = [null, ID, event];
       for (let i = eventsArr.length - 1; i >= 0; i--) {
          if (eventsArr[i][1] === ID) {
@@ -259,7 +247,7 @@ const createEvent = async (req, res, next) => {
          SPREADSHEETS.EVENTS,
          SPREADSHEETS.EVENTS_NUM,
          +index,
-         [value]
+         [value],
       );
 
       if (saveResult.code == 1) {

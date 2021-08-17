@@ -2,7 +2,7 @@ import _ from 'lodash';
 
 //Khai báo một số hằng
 const KET_LUAN = ['H', 'A'];
-const SU_KIEN_NGOAI_LE = ['C5', 'C3', 'G1', 'G2'];
+const SU_KIEN_NGOAI_LE = ['C5', 'C3', 'G1', 'G2', 'A4'];
 
 //Khai báo 1 số biến toàn cục
 var suKienNgoaiLe = [];
@@ -46,7 +46,7 @@ const excute = (events, rules) => {
    }
 
    let suggests = _.differenceWith(tatCaCacKQ, lastResult, _.isEqual).map(
-      (item) => item.split(': ')[1]
+      (item) => item.split(': ')[1],
    );
    LOG.push(
       `==> Kết quả cuối cùng: ${
@@ -55,7 +55,7 @@ const excute = (events, rules) => {
             : lastResult.length == 1
             ? lastResult[0]
             : 'Không tìm thấy kết quả'
-      }`
+      }`,
    );
 
    LOG.push('Kết thúc thuật toán');
@@ -71,8 +71,7 @@ function eachEvents(events, rules) {
 }
 
 function getDuplicateValue(arr) {
-   const count = (names) =>
-      names.reduce((a, b) => ({ ...a, [b]: (a[b] || 0) + 1 }), {});
+   const count = (names) => names.reduce((a, b) => ({ ...a, [b]: (a[b] || 0) + 1 }), {});
 
    const duplicates = (dict) => Object.keys(dict).filter((a) => dict[a] > 1);
 
@@ -107,8 +106,7 @@ function xetTungSuKien(event, rules) {
    rules.filter((item) => {
       if (item.events.includes(event) && !data.includes(item.result)) {
          data.push(item.result);
-         if (SU_KIEN_NGOAI_LE.indexOf(event.split(': ')[0]) !== -1)
-            kqNgoaiLe.push(item.result);
+         if (SU_KIEN_NGOAI_LE.indexOf(event.split(': ')[0]) !== -1) kqNgoaiLe.push(item.result);
          LOG.push(`Tìm thấy kết quả: ${item.result.split(':')[1]}`);
       }
    });
@@ -158,11 +156,7 @@ function xetToanBoSuKien(events, rules) {
 
       // Lặp tất cả để tìm các luật thỏa
       maTapLuatBanDau.forEach((maLuat) => {
-         if (
-            tapLuatBanDau[maLuat].events.every((e) =>
-               suKienGiaThiet.includes(e)
-            )
-         ) {
+         if (tapLuatBanDau[maLuat].events.every((e) => suKienGiaThiet.includes(e))) {
             maLuatThoa.push(maLuat);
             tapLuatThoa.push(maLuat);
             taoLogLuatThoa(maLuat);

@@ -8,12 +8,8 @@ export default function Menu({ getAllEvents, rules, setPage }) {
       const [open, setOpen] = useState(false);
 
       return (
-         <li className="menu-button">
-            <div
-               href="#"
-               className="icon-button"
-               onClick={() => setOpen(!open)}
-            >
+         <li className='menu-button'>
+            <div href='#' className='icon-button' onClick={() => setOpen(!open)}>
                {props.icon}
             </div>
 
@@ -30,35 +26,27 @@ export default function Menu({ getAllEvents, rules, setPage }) {
       }, []);
       const DropdownItem = (props) => {
          return (
-            <div href="#" className="menu-item" onClick={(e) => testOnClick(e)}>
-               <span className="icon-button">{props.leftIcon}</span>
+            <div href='#' className='menu-item' onClick={(e) => testOnClick(e)}>
+               <span className='icon-button'>{props.leftIcon}</span>
                {props.children}
-               <span className="icon-right">{props.rightIcon}</span>
+               <span className='icon-right'>{props.rightIcon}</span>
             </div>
          );
       };
 
       return (
-         <div
-            className="dropdown"
-            style={{ height: menuHeight, zIndex: '1' }}
-            ref={dropdownRef}
-         >
-            <div className="menu">
-               <DropdownItem
-                  goToMenu="main"
-                  leftIcon="📝"
-                  onClick={testOnClick}
-               >
+         <div className='dropdown' style={{ height: menuHeight, zIndex: '1' }} ref={dropdownRef}>
+            <div className='menu'>
+               <DropdownItem goToMenu='main' leftIcon='📝' onClick={testOnClick}>
                   Tạo tập luật
                </DropdownItem>
-               <DropdownItem leftIcon="🗃️" onClick={testOnClick}>
-                  Quản sự kiện
+               <DropdownItem leftIcon='🗃️' onClick={testOnClick}>
+                  Quản lý sự kiện
                </DropdownItem>
-               <DropdownItem leftIcon="🗺" onClick={testOnClick}>
+               <DropdownItem leftIcon='🗺' onClick={testOnClick}>
                   Tìm địa điểm
                </DropdownItem>
-               <DropdownItem leftIcon="📥" onClick={testOnClick}>
+               <DropdownItem leftIcon='📥' onClick={testOnClick}>
                   Tải tập luật
                </DropdownItem>
             </div>
@@ -87,7 +75,7 @@ export default function Menu({ getAllEvents, rules, setPage }) {
          setPage(PageType.FIND_PLACES);
       }
 
-      if (e.target.innerText.includes('Quản sự kiện')) {
+      if (e.target.innerText.includes('Quản lý sự kiện')) {
          setPage(PageType.MANAGE_EVENTS);
       }
 
@@ -96,7 +84,7 @@ export default function Menu({ getAllEvents, rules, setPage }) {
       }
    };
    return (
-      <NavItem icon={<i className="fas fa-bars"></i>}>
+      <NavItem icon={<i className='fas fa-bars'></i>}>
          <DropdownMenu></DropdownMenu>
       </NavItem>
    );
