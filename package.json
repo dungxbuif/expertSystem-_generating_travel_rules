@@ -3,6 +3,7 @@
   "version": "1.0.0",
   "description": "",
   "main": "index.js",
+  "proxy": "http://dungxbuif-localhost:4000",
   "scripts": {
     "start": "nodemon index",
     "c": "npm run start --prefix client",
