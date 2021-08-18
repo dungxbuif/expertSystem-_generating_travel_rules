@@ -2,7 +2,7 @@ import _ from 'lodash';
 
 //Khai báo một số hằng
 const KET_LUAN = ['H', 'A'];
-const SU_KIEN_NGOAI_LE = ['C5', 'C3', 'G1', 'G2', 'A4'];
+const SU_KIEN_NGOAI_LE = ['C5', 'C3', 'G', 'G', 'A'];
 
 //Khai báo 1 số biến toàn cục
 var suKienNgoaiLe = [];
@@ -28,15 +28,17 @@ const excute = (events, rules) => {
    eachEvents(events, rules);
 
    LOG.push('Chọn ra các kết quả trùng lặp');
+
    let ketQuaTrungLap = getDuplicateValue(ketQuaTungSuKien);
 
    let tatCaCacKQ = [...ketQuaToanBo, ...ketQuaTrungLap];
+
    if (suKienNgoaiLe.length) {
       LOG.push('Lọc các kết quả ngoại lệ');
 
       /* Nếu có sự kiện ngoại lệ mà các sự kiện đó không
        có kết quả trùng thì kết quả cuối cùng cũng không có*/
-      if (kqNgoaiLe.length == 0) {
+      if (kqNgoaiLe.length === 0) {
          lastResult = [];
       } else {
          lastResult = getDuplicateValue([...tatCaCacKQ, ...kqNgoaiLe]);
@@ -52,7 +54,7 @@ const excute = (events, rules) => {
       `==> Kết quả cuối cùng: ${
          lastResult.length > 1
             ? lastResult.map((item) => item.split(': ')[1]).join(' v ')
-            : lastResult.length == 1
+            : lastResult.length === 1
             ? lastResult[0]
             : 'Không tìm thấy kết quả'
       }`,
@@ -80,13 +82,14 @@ function getDuplicateValue(arr) {
 }
 
 function khoiTaoTapLuatBanDau(rules) {
+   // rules =[{ id: "1", result: "H20: Vườn Quốc Gia Ba Vì", events: (1) […] },...]
    let arr = [...rules];
    let tapLuatBanDau = {},
       maTapLuatBanDau = [];
+
    maTapLuatBanDau = arr.map((item) => {
       let MA_TAP_LUAT = item.id;
       tapLuatBanDau[MA_TAP_LUAT] = item;
-
       return MA_TAP_LUAT;
    });
 
@@ -96,17 +99,24 @@ function khoiTaoTapLuatBanDau(rules) {
 function xetTungSuKien(event, rules) {
    let data = [];
    let flag = false;
-   if (SU_KIEN_NGOAI_LE.indexOf(event.split(': ')[0]) !== -1) {
+   if (
+      SU_KIEN_NGOAI_LE.indexOf(event.split(': ')[0]) !== -1 ||
+      SU_KIEN_NGOAI_LE.indexOf(event.charAt(0)) !== -1
+   ) {
       LOG.push('Phát hiện sự kiện ngoại lệ');
       suKienNgoaiLe.push(event);
    }
 
    if (suKienNgoaiLe.length > 1) flag = true;
 
-   rules.filter((item) => {
+   rules.forEach((item) => {
       if (item.events.includes(event) && !data.includes(item.result)) {
          data.push(item.result);
-         if (SU_KIEN_NGOAI_LE.indexOf(event.split(': ')[0]) !== -1) kqNgoaiLe.push(item.result);
+         if (
+            SU_KIEN_NGOAI_LE.indexOf(event.split(': ')[0]) !== -1 ||
+            SU_KIEN_NGOAI_LE.indexOf(event.charAt(0)) !== -1
+         )
+            kqNgoaiLe.push(item.result);
          LOG.push(`Tìm thấy kết quả: ${item.result.split(':')[1]}`);
       }
    });
@@ -122,6 +132,9 @@ function xetTungSuKien(event, rules) {
 function xetToanBoSuKien(events, rules) {
    let suKienGiaThiet = [...events];
    let { tapLuatBanDau, maTapLuatBanDau } = khoiTaoTapLuatBanDau(rules);
+   // maTapLuatBanDau = [1,2,...,165]
+   // {1:{ id: "1", result: "H20: Vườn Quốc Gia Ba Vì", events: (1) […] },...}
+   // rules =[{ id: "1", result: "H20: Vườn Quốc Gia Ba Vì", events: (1) […] },...]
    let tapLuatThoa = [];
    let i = 1;
    let flag = true;
@@ -132,12 +145,15 @@ function xetToanBoSuKien(events, rules) {
       LOG.push(`Lần duyệt thứ ${i}, các luật thỏa: `);
       //Tìm các luật thỏa SAT
       timLuatThoa({ events, maTapLuatBanDau });
+
       if (!tapLuatThoa.length) {
          LOG.push('Không tìm được kết quả');
          break;
       }
+
       //Xét luật thỏa đầu tiên trong mảng
       xetLuatDauTien();
+
       i++;
       if (!tapKetLuan.length && !tapLuatThoa.length) {
          LOG.push('Không tìm được kết quả');
@@ -184,15 +200,15 @@ function xetToanBoSuKien(events, rules) {
 
       //Xóa luật đầu tiên ra khỏi mảng
       tapLuatThoa.shift();
+
       let tmpLuat = tapLuatBanDau[maLuat];
-      // let cacSuKienMoi = [...tmpLuat.events, tmpLuat.result];
-      // //Thêm các sự kiện vào tập luật giả thiết
-      // let tmpArr = new Set([...suKienGiaThiet, ...cacSuKienMoi]);
+
       suKienGiaThiet.push(tmpLuat.result);
 
       let string = formatLuat(tmpLuat);
+
       LOG.push(`=> Xét luật ${string}`);
-      // LOG.push(`\t&#09;=> Tìm thấy kết quả ${string}`);
+
       //Kiểm tra kết quả đã có trong mệnh đề hay không
       kiemTraKetQua(tmpLuat.result);
    }
@@ -204,7 +220,7 @@ function xetToanBoSuKien(events, rules) {
          string += luat.events[i].split(':')[1];
 
          let tmp = ' ^ ';
-         if (i == luat.events.length - 1) tmp = ' => ';
+         if (i === luat.events.length - 1) tmp = ' => ';
 
          string += tmp;
       }
@@ -221,8 +237,6 @@ function xetToanBoSuKien(events, rules) {
          tapKetLuan.push(ketQua);
          LOG.push(`\tTìm thấy kết quả: ${ketQua.split(':')[1]}`);
       }
-      // if (tmp.length) {
-      // }
    }
 }
 export default { excute };

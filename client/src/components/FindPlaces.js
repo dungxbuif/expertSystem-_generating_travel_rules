@@ -3,7 +3,6 @@ import Select from 'react-select';
 import { toast } from 'react-toastify';
 import '../styles/boostrap.scss';
 import Algorithm from '../process';
-import _ from 'lodash';
 
 export default function FindPlaces({ selectData, rules }) {
    const [selectedOption, setSelectedOption] = useState(null);
@@ -16,7 +15,7 @@ export default function FindPlaces({ selectData, rules }) {
       setSelectedOption(e);
    };
    const handleOnClick = () => {
-      if (selectedOption === null) {
+      if (selectedOption === null && events === null) {
          toast.error(`Please choose the events`);
          return;
       }
@@ -62,6 +61,7 @@ export default function FindPlaces({ selectData, rules }) {
                onChange={(e) => handleChange(e)}
                isMulti={events ? false : true}
                className='w-50'
+               isDisabled={lastResult !== null ? true : false}
                options={selectData}
                placeholder='Chọn sự kiện...'
             />
@@ -87,7 +87,7 @@ export default function FindPlaces({ selectData, rules }) {
                      <b>{lastResult[0]}</b>
                   ) : lastResult !== null && lastResult.length > 1 ? (
                      <b>{lastResult.map((item) => item.split(': ')[1]).join(' v ')}</b>
-                  ) : (
+                  ) : lastResult === null ? null : (
                      <span className='badge badge-danger' style={{ fontSize: '1rem' }}>
                         Không có kết quả
                      </span>
@@ -143,8 +143,7 @@ export default function FindPlaces({ selectData, rules }) {
                                     : item.includes('Phát hiện sự kiện')
                                     ? 'alert-info text-left'
                                     : 'text-left'
-                              }
-                              scope='row'>
+                              }>
                               {item}
                            </td>
                         </tr>

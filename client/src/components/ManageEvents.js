@@ -60,38 +60,7 @@ export default function CreateRules({ selectData, children, loadAllRule }) {
          toast.error(`🔥 Creating event/events type failed. ${ex.message}`);
       }
    };
-   const reset = () => {
-      setEvents(null);
-   };
-   const handleSave = async () => {
-      const sendResult = events.value;
-      let sendData = {
-         result: sendResult,
-         events,
-      };
-      toast.info('🔄 Creating rule !!!', {
-         position: 'bottom-right',
-         autoClose: false,
-         hideProgressBar: false,
-         closeOnClick: false,
-         pauseOnHover: false,
-         draggable: false,
-         progress: undefined,
-      });
-      const res = await api.createNewRule(sendData);
-      if (res.data.code === 1) {
-         toast.dismiss();
-         toast.success('🚀 Creating rule succeed !!!');
-         reset();
-         loadAllRule();
-      } else if (res.data.code === 2) {
-         toast.dismiss();
-         toast.warning(`📑 ${res.data.message}`);
-      } else {
-         toast.dismiss();
-         toast.error('🔥 Creating rule failed !!!');
-      }
-   };
+
    return (
       <div className='container'>
          <div className='row justify-content-center pt-5 mt-5 '>

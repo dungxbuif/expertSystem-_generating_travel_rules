@@ -1,4 +1,4 @@
-import axios from './apiClient';
+import axios from 'axios';
 
 export const getGroupEvents = () => axios.get('api/spreadsheets/get-group-events');
 

@@ -1,6 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
 import '../styles/menu.scss';
-import { toast } from 'react-toastify';
 import { PageType } from '../config/PageType';
 
 export default function Menu({ getAllEvents, rules, setPage }) {
