@@ -1,10 +1,12 @@
 const { google } = require('googleapis');
 const log = require('../configs/log');
+const path = require('path');
 require('dotenv').config();
 const spreadsheetId = process.env.SPEADSHEETID;
+const GOOGLE_APPLICATION_CREDENTIALS = process.env.GOOGLE_APPLICATION_CREDENTIALS;
 
 const auth = new google.auth.GoogleAuth({
-   keyFile: 'credentials.json',
+   keyFile: path.resolve(GOOGLE_APPLICATION_CREDENTIALS),
    scopes: 'https://www.googleapis.com/auth/spreadsheets',
 });
 
@@ -37,9 +39,7 @@ const getTable = (table) => {
             code: 0,
             message: `Get spreadsheet ${table} failed: ${e.message}`,
          });
-         console.log(
-            log.error(`Get spreadsheet ${table} failed: ${e.message}`)
-         );
+         console.log(log.error(`Get spreadsheet ${table} failed: ${e.message}`));
       }
    });
 };
@@ -58,9 +58,7 @@ const append = (table, values = []) => {
             },
          });
 
-         console.log(
-            log.succeed(`Append data into spreadsheet ${table} succeed`)
-         );
+         console.log(log.succeed(`Append data into spreadsheet ${table} succeed`));
 
          resolve({
             code: 1,
@@ -71,11 +69,7 @@ const append = (table, values = []) => {
             code: 0,
             message: `Append data into spreadsheet ${table} failed: ${e.message}`,
          });
-         console.log(
-            log.error(
-               `Append data into spreadsheet ${table} failed: ${e.message}`
-            )
-         );
+         console.log(log.error(`Append data into spreadsheet ${table} failed: ${e.message}`));
       }
    });
 };
